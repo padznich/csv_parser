@@ -1,0 +1,13 @@
+[package]
+name = "csv_parser"
+version = "0.1.0"
+authors = ["padznich <slabkopg@gmail.com>"]
+
+[dependencies]
+libc = "0.2.29"
+csv = "0.15.0"
+postgres = "0.15.1"
+
+[lib]
+name = "csv_parser"
+crate-type = ["dylib"]
