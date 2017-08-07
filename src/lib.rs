@@ -43,15 +43,21 @@ pub extern fn parse_many(array: *const *const c_char, length: size_t) {
 }
 
 #[no_mangle]
-pub extern fn parse(file_path: *const c_char, column_names: *const *const c_char, length: size_t) {
-
-    let columns: Vec<&str> = helpers::trs::transform_arr(column_names, length);
+pub extern fn write_to_postgres(file_path: *const c_char,
+                                column_names: *const *const c_char,
+                                column_names_length: size_t,
+                                column_spec: *const *const c_char,
+                                column_spec_length: size_t,
+    ) {
+    // Prepare function input data
     let csv_path = unsafe { CStr::from_ptr(file_path).to_str().unwrap() };
-
-    let parsed_dict = parsers::parse_csv::parse_csv(csv_path, columns);
-
+    let columns: Vec<&str> = helpers::trs::transform_arr(column_names, column_names_length);
+    let columns_s: Vec<&str> = helpers::trs::transform_arr(column_spec, column_spec_length);
+    // Parse CSV-file to: Result<BTreeMap<usize, BTreeMap<String, String>>, Box<Error>>
+    let parsed_dict = parsers::parse_csv::reduced_parsed_csv(csv_path, columns, columns_s);
+    // Write data to db
     db::psql::write(parsed_dict.unwrap());
-    println!("Done");
+    println!("SUCCESS write_to_postgres");
 
 }
 
